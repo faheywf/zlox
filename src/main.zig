@@ -15,7 +15,12 @@ pub fn main() anyerror!void {
     // do  lox stuff in here
     var chunk = c.Chunk{};
     chunk.init(allocator);
-    chunk.write(allocator, @enumToInt(c.OpCode.OP_RETURN));
+
+    var constant = @intCast(u8, chunk.addConst(allocator, 1.2));
+    chunk.write(allocator, @enumToInt(c.OpCode.OP_CONSTANT), 123);
+    chunk.write(allocator, constant, 123);
+
+    chunk.write(allocator, @enumToInt(c.OpCode.OP_RETURN), 123);
 
     try debug.disassembleChunk(&chunk, "test chunk");
     chunk.free(allocator);
