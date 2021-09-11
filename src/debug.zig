@@ -11,16 +11,31 @@ pub fn disassembleChunk(chunk: *c.Chunk, name: []const u8) !void {
     }
 }
 
-fn constantInstruction(name: []const u8, chunk: *c.Chunk, offset: usize) !usize {
+fn constantInstruction(name: []const u8, chunk: *c.Chunk, offset: usize, long: bool) !usize {
     const stdout = std.io.getStdOut().writer();
-    const constant = chunk.*.code[offset + 1];
+    var constant: usize = undefined;
+    if (long) {
+        constant = 0;
+        const shifts = [_]u6{0, 8, 16};
+        for (shifts) |shift, index| {
+            constant |= @intCast(usize, chunk.*.code[offset + 1 + index]) << shift;
+        }
+    }
+    else {
+        constant = chunk.*.code[offset + 1];
+    }
     try stdout.print("{s:<16} {d:>4} '", .{name, constant});
     try chunk.*.constants.print(constant);
     try stdout.print("'\n", .{});
-    return offset + 2;
+    if (long) {
+        return offset + 4;
+    }
+    else {
+        return offset + 2;
+    }
 }
 
-fn simpleInstruction(name: []const u8, offset: usize) callconv(.Inline) !usize {
+fn simpleInstruction(name: []const u8, offset: usize) !usize {
     const stdout = std.io.getStdOut().writer();
     try stdout.print("{s}\n", .{name});
     return offset + 1;
@@ -29,17 +44,19 @@ fn simpleInstruction(name: []const u8, offset: usize) callconv(.Inline) !usize {
 pub fn disassembleInstruction(chunk: *c.Chunk, offset: usize) !usize {
     const stdout = std.io.getStdOut().writer();
     try stdout.print("{d:0>4} ", .{offset});
-    if (offset > 0 and chunk.*.lines[offset] == chunk.*.lines[offset - 1]) {
+    var line = chunk.getLine(offset);
+    if (offset > 0 and line == chunk.getLine(offset - 1)) {
         try stdout.print("   | ", .{});
     }
     else {
-        try stdout.print("{d:0>4} ", .{chunk.*.lines[offset]});
+        try stdout.print("{d:0>4} ", .{line});
     }
 
 
     var instruction = chunk.*.code[offset];
     switch (instruction) {
-        @enumToInt(c.OpCode.OP_CONSTANT) => return constantInstruction("OP_CONSTANT", chunk, offset),
+        @enumToInt(c.OpCode.OP_CONSTANT) => return constantInstruction("OP_CONSTANT", chunk, offset, false),
+        @enumToInt(c.OpCode.OP_CONSTANT_LONG) => return constantInstruction("OP_CONSTANT_LONG", chunk, offset, true),
         @enumToInt(c.OpCode.OP_RETURN) => return simpleInstruction("OP_RETURN", offset),
         else => {
             try stdout.print("{d}\n", .{instruction});

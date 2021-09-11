@@ -16,9 +16,7 @@ pub fn main() anyerror!void {
     var chunk = c.Chunk{};
     chunk.init(allocator);
 
-    var constant = @intCast(u8, chunk.addConst(allocator, 1.2));
-    chunk.write(allocator, @enumToInt(c.OpCode.OP_CONSTANT), 123);
-    chunk.write(allocator, constant, 123);
+    chunk.writeConst(allocator, 1.2, 123);
 
     chunk.write(allocator, @enumToInt(c.OpCode.OP_RETURN), 123);
 
