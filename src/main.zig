@@ -23,6 +23,10 @@ pub fn main() anyerror!void {
     defer chunk.deinit(allocator);
 
     chunk.writeConst(allocator, 1.2, 123);
+    chunk.writeConst(allocator, 1.2, 123);
+    chunk.write(allocator, @enumToInt(c.OpCode.OP_ADD), 123);
+    chunk.writeConst(allocator, 1.2, 123);
+    chunk.write(allocator, @enumToInt(c.OpCode.OP_SUBTRACT), 123);
     chunk.writeConst(allocator, 3.4, 123);
     chunk.write(allocator, @enumToInt(c.OpCode.OP_ADD), 123);
     chunk.writeConst(allocator, 5.6, 123);

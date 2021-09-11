@@ -108,7 +108,7 @@ pub const VM = struct {
                     self.binaryOp(instruction);
                 },
                 .OP_NEGATE => {
-                    self.push(-self.pop());
+                    (self.stackTop - 1).* = -(self.stackTop - 1)[0];
                 },
                 .OP_RETURN => {
                     try stdout.print("{any}\n", .{self.pop()});
