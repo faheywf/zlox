@@ -6,6 +6,11 @@ const value = @import("value.zig");
 pub const OpCode = enum(u8) {
     OP_CONSTANT,
     OP_CONSTANT_LONG,
+    OP_ADD,
+    OP_SUBTRACT,
+    OP_MULTIPLY,
+    OP_DIVIDE,
+    OP_NEGATE,
     OP_RETURN,
 };
 
@@ -79,10 +84,10 @@ pub const Chunk = struct {
         return self.constants.count - 1;
     }
 
-    pub fn free(self: *Chunk, allocator: *std.mem.Allocator) void {
+    pub fn deinit(self: *Chunk, allocator: *std.mem.Allocator) void {
         memory.freeArray(allocator, u8, self.code, self.capacity);
         memory.freeArray(allocator, Line, self.lines, self.line_capacity);
-        self.constants.free(allocator);
+        self.constants.deinit(allocator);
         self.init(allocator);
     }
 

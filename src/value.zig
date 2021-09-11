@@ -24,7 +24,7 @@ pub const ValueArray = struct {
         self.count += 1;
     }
 
-    pub fn free(self: *ValueArray, allocator: *std.mem.Allocator) void {
+    pub fn deinit(self: *ValueArray, allocator: *std.mem.Allocator) void {
         memory.freeArray(allocator, Value, self.values, self.capacity);
         self.init(allocator);
     }

@@ -53,14 +53,15 @@ pub fn disassembleInstruction(chunk: *c.Chunk, offset: usize) !usize {
     }
 
 
-    var instruction = chunk.*.code[offset];
+    var instruction = @intToEnum(c.OpCode, chunk.*.code[offset]);
     switch (instruction) {
-        @enumToInt(c.OpCode.OP_CONSTANT) => return constantInstruction("OP_CONSTANT", chunk, offset, false),
-        @enumToInt(c.OpCode.OP_CONSTANT_LONG) => return constantInstruction("OP_CONSTANT_LONG", chunk, offset, true),
-        @enumToInt(c.OpCode.OP_RETURN) => return simpleInstruction("OP_RETURN", offset),
-        else => {
-            try stdout.print("{d}\n", .{instruction});
-            return offset + 1;
-        }
+        .OP_CONSTANT => return constantInstruction("OP_CONSTANT", chunk, offset, false),
+        .OP_CONSTANT_LONG => return constantInstruction("OP_CONSTANT_LONG", chunk, offset, true),
+        .OP_ADD => return simpleInstruction("OP_ADD", offset),
+        .OP_SUBTRACT => return simpleInstruction("OP_SUBTRACT", offset),
+        .OP_MULTIPLY => return simpleInstruction("OP_MULTIPLY", offset),
+        .OP_DIVIDE => return simpleInstruction("OP_DIVIDE", offset),
+        .OP_NEGATE => return simpleInstruction("OP_NEGATE", offset),
+        .OP_RETURN => return simpleInstruction("OP_RETURN", offset),
     }
 }
